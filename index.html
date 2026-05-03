@@ -1287,7 +1287,7 @@ body.book-open .book {
     <div class="page-heading">
       <div class="eyebrow">A Forever Memory Gift</div>
       <h2>Open the Book</h2>
-      <p>Tap the cover, turn the pages, open memories, or start slideshow mode for the event screen.</p>
+      <p>Tap the cover, turn the pages and open each memory as a keepsake.</p>
     </div>
 
     <div class="book-shell">
@@ -1310,7 +1310,7 @@ body.book-open .book {
                 <p>A playful passport insert to begin the story — Don as the traveller of honour, cleared for 70 years of memories.</p>
                 <div class="controls">
                   <button class="btn btn-dark" onclick="nextPage()">Start Reading</button>
-                  <button class="btn btn-coral" onclick="toggleSlideshow()">Start Slideshow</button>
+                  
                 </div>
               </div>
 
@@ -1396,34 +1396,6 @@ body.book-open .book {
               </div>
             </div>
           </div>
-
-          <div class="page" data-page="3">
-            <div class="page-heading">
-              <div class="eyebrow">Featured View</div>
-              <h2>Memory Spotlight</h2>
-              <p>Use this mode during the event to slowly move through memories on screen.</p>
-            </div>
-
-            <div class="featured-panel">
-              <div class="featured-polaroid">
-                <div class="featured-image" id="featuredImage">🏡</div>
-              </div>
-              <div>
-                <div class="eyebrow" style="color:#9a5d17">Featured Memory</div>
-                <div class="featured-note" id="featuredNote">
-                  Thank you for the laughter, the stories, and the way you always make everyone feel at home.
-                  <strong>— The Family</strong>
-                </div>
-                <div class="progress"><span id="progressBar"></span></div>
-                <div class="controls">
-                  <button class="btn btn-dark" onclick="prevMemory()">Previous</button>
-                  <button class="btn btn-gold" onclick="toggleSlideshow()" id="slideshowBtn">Start Slideshow</button>
-                  <button class="btn btn-dark" onclick="nextMemory()">Next</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="book-nav">
             <button class="btn btn-paper" onclick="prevPage()">← Previous Page</button>
             <span class="page-count" id="pageCount">Page 1 / 4</span>
@@ -1463,7 +1435,7 @@ body.book-open .book {
       <p>Guests can scan the QR code at the party or use the shared link to add photos from the evening.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
         <button class="btn btn-coral" onclick="fakeUpload()">Add Evening Photo</button>
-        <button class="btn btn-gold" onclick="goSpotlight()">Memory Slideshow</button>
+        
       </div>
       <div class="live-strip" id="liveStrip">
         <div class="live-thumb" style="--rot:-3deg">🎤</div>
@@ -1489,23 +1461,20 @@ body.book-open .book {
 </div>
 
 
+
 <script>
 const REVEAL_BACKEND_URL = "https://script.google.com/macros/s/AKfycbxX9tzOQ4gq5w7KoaQ8zIZt8CXyitdaRVDTH7sChYbq5xvmbDU9xfyxq-dftk7smYJD/exec";
 
 let memories = [
-  { name:"The Family", message:"Thank you for the laughter, the stories, and the way you always make everyone feel at home.", emoji:"🏡", bg:"linear-gradient(135deg,#12265a,#ff725e)", note:"#ffe76a", photos:[] },
-  { name:"Karaoke Crew", message:"Tonight we sing for the legend. World Edition would not be complete without you.", emoji:"🎤", bg:"linear-gradient(135deg,#45e0d2,#12265a)", note:"#c7f0ff", photos:[] },
-  { name:"Everyone", message:"This celebration is one night, but these memories are forever.", emoji:"✈️", bg:"linear-gradient(135deg,#ffd166,#ff725e)", note:"#ffd6d6", photos:[] },
-  { name:"The Grandkids", message:"For all the hugs, jokes, stories and special moments — we love you endlessly.", emoji:"❤️", bg:"linear-gradient(135deg,#8e5cff,#ff725e)", note:"#ffe76a", photos:[] },
-  { name:"Friends", message:"From one chapter to the next, you have made the journey unforgettable.", emoji:"🌍", bg:"linear-gradient(135deg,#071024,#45e0d2)", note:"#c7f0ff", photos:[] },
-  { name:"With Love", message:"A lifetime of memories, stitched together by everyone lucky enough to know you.", emoji:"📸", bg:"linear-gradient(135deg,#5a3717,#d9a441)", note:"#ffd6d6", photos:[] }
+  { name:"The Family", message:"Sample memory: thank you for the laughter and stories.", emoji:"🏡", bg:"linear-gradient(135deg,#12265a,#ff725e)", note:"#ffe76a", photos:[] },
+  { name:"Karaoke Crew", message:"Sample memory: tonight we sing for the legend.", emoji:"🎤", bg:"linear-gradient(135deg,#45e0d2,#12265a)", note:"#c7f0ff", photos:[] },
+  { name:"Everyone", message:"Sample memory: this celebration is one night, but these memories are forever.", emoji:"✈️", bg:"linear-gradient(135deg,#ffd166,#ff725e)", note:"#ffd6d6", photos:[] }
 ];
 
 let currentPage = 0;
 let currentMemory = 0;
-let slideshowTimer = null;
 
-const fallbackEmojis = ["🏡","🎤","✈️","❤️","🌍","📸","🎂","🥂","🎶","✨"];
+const fallbackEmojis = ["🏡","🎤","✈️","❤️","🌍","📸","🎂","🥂"];
 const fallbackBgs = [
   "linear-gradient(135deg,#12265a,#ff725e)",
   "linear-gradient(135deg,#45e0d2,#12265a)",
@@ -1520,14 +1489,8 @@ function openBook() {
   document.body.classList.add("book-open");
   const curtain = document.getElementById("revealCurtain");
   curtain.classList.add("show");
-
-  setTimeout(() => {
-    document.getElementById("book").scrollIntoView({ behavior:"smooth" });
-  }, 1600);
-
-  setTimeout(() => {
-    curtain.classList.remove("show");
-  }, 4400);
+  setTimeout(() => document.getElementById("book").scrollIntoView({ behavior:"smooth" }), 1600);
+  setTimeout(() => curtain.classList.remove("show"), 4400);
 }
 
 function showPage(index) {
@@ -1541,13 +1504,13 @@ function showPage(index) {
 function nextPage() { showPage(currentPage + 1); }
 function prevPage() { showPage(currentPage - 1); }
 
+function firstPhoto(memory) {
+  return memory.photos && memory.photos.length ? memory.photos[0].driveUrl : "";
+}
+
 function imageHtml(url, className) {
   if (!url) return "";
   return '<img class="' + className + '" src="' + url + '" alt="Memory photo" loading="lazy" onerror="this.style.display=\'none\'; this.parentElement.textContent=\'📸\';" />';
-}
-
-function firstPhoto(memory) {
-  return memory.photos && memory.photos.length ? memory.photos[0].driveUrl : "";
 }
 
 function renderMemoryPhoto(memory, className) {
@@ -1591,7 +1554,7 @@ function renderLiveScrapbookPages() {
             ${photoCount}
             ${renderMemoryPhoto(memory, "live-photo-img")}
           </div>
-          <div class="caption">${memory.name || "Memory " + (globalIndex + 1)}</div>
+          <div class="caption">${memory.name || "Guest"}</div>
         </div>
         <div class="note">${memory.message}<strong>— ${memory.name || "Guest"}</strong></div>
       `;
@@ -1625,7 +1588,6 @@ function showMemory(index) {
   }
 
   document.getElementById("lightbox").classList.add("show");
-  renderFeatured();
 }
 
 function hideLightbox() {
@@ -1634,54 +1596,6 @@ function hideLightbox() {
 
 function closeLightbox(e) {
   if(e.target.id === "lightbox") hideLightbox();
-}
-
-function renderFeatured() {
-  if (!memories.length) return;
-  const m = memories[currentMemory % memories.length];
-  const image = document.getElementById("featuredImage");
-  const note = document.getElementById("featuredNote");
-  const progress = document.getElementById("progressBar");
-
-  if(image) {
-    image.style.background = m.bg;
-    image.innerHTML = renderMemoryPhoto(m, "featured-photo-img");
-  }
-  if(note) {
-    note.style.background = m.note;
-    note.innerHTML = m.message + "<strong>— " + (m.name || "Guest") + "</strong>";
-  }
-  if(progress) {
-    progress.style.width = (((currentMemory + 1) / memories.length) * 100) + "%";
-  }
-}
-
-function nextMemory() {
-  currentMemory = (currentMemory + 1) % memories.length;
-  renderFeatured();
-}
-
-function prevMemory() {
-  currentMemory = (currentMemory - 1 + memories.length) % memories.length;
-  renderFeatured();
-}
-
-function toggleSlideshow() {
-  const btn = document.getElementById("slideshowBtn");
-  if(slideshowTimer) {
-    clearInterval(slideshowTimer);
-    slideshowTimer = null;
-    if(btn) btn.textContent = "Start Slideshow";
-    return;
-  }
-  if(btn) btn.textContent = "Pause Slideshow";
-  slideshowTimer = setInterval(nextMemory, 2800);
-}
-
-function goSpotlight() {
-  showPage(3);
-  document.getElementById("book").scrollIntoView({ behavior:"smooth" });
-  if(!slideshowTimer) toggleSlideshow();
 }
 
 function fakeUpload() {
@@ -1697,7 +1611,7 @@ function fakeUpload() {
 async function loadLiveMemories() {
   const status = document.getElementById("liveStatus");
   try {
-    const response = await fetch(REVEAL_BACKEND_URL + "?type=memories", { method: "GET" });
+    const response = await fetch(REVEAL_BACKEND_URL + "?type=memories&v=" + Date.now());
     const data = await response.json();
 
     if (data && data.ok && Array.isArray(data.memories) && data.memories.length) {
@@ -1716,20 +1630,20 @@ async function loadLiveMemories() {
         status.innerHTML = "Live archive connected <span class='live-badge'>" + memories.length + " approved memories loaded</span>";
       }
     } else {
-      if (status) status.textContent = "No approved memories yet — showing sample layout until entries are approved.";
+      if (status) status.textContent = "No approved memories yet — showing sample layout.";
     }
   } catch (err) {
     console.error("Could not load live memories", err);
-    if (status) status.textContent = "Could not load live memories — showing sample layout.";
+    if (status) status.textContent = "Could not load live memories — check Apps Script doGet and deployment.";
   }
 
   currentMemory = 0;
   renderLiveScrapbookPages();
-  renderFeatured();
 }
 
 loadLiveMemories();
 </script>
+
 
 </body>
 </html>
