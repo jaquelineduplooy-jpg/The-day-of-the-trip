@@ -1153,6 +1153,68 @@ body.book-open .book {
 }
 </style>
 
+
+<style id="don70-live-reveal-css">
+.live-status {
+  margin: 18px auto 0;
+  max-width: 680px;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.20);
+  color: #fff6df;
+  font-weight: 900;
+  text-align: center;
+}
+.live-badge {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(73,255,171,.14);
+  border: 1px solid rgba(73,255,171,.30);
+  color: #dfffee;
+  font-size: 13px;
+  font-weight: 900;
+  margin-left: 8px;
+}
+.memory.empty-photo .photo {
+  background: linear-gradient(135deg,#12306a,#ff725e) !important;
+}
+.live-photo-img,
+.featured-photo-img,
+.lightbox-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.photo-stack-count {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 3;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(7,16,36,.82);
+  color: white;
+  font-weight: 900;
+  font-size: 12px;
+}
+.no-live-data {
+  text-align:center;
+  max-width:780px;
+  margin:24px auto 0;
+  padding:18px;
+  border-radius:24px;
+  background:rgba(255,248,232,.62);
+  border:1px dashed rgba(90,55,23,.18);
+  color:#5a3b1a;
+  font-weight:900;
+}
+</style>
+
 </head>
 
 <body>
@@ -1207,6 +1269,7 @@ body.book-open .book {
     <div class="ribbon">✨ The Great Reveal</div>
     <h1>Don’s Memories<br>Journal</h1>
     <p>All journeys lead somewhere. This one leads to a lifetime of memories — photos, stories, sticky notes and love, gathered for Don’s 70th.</p>
+    <div class="live-status" id="liveStatus">Loading approved memories from Don’s archive...</div>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px">
       <a href="#book" class="btn btn-gold" onclick="openBook()">Open Don’s Story</a>
       <a href="#event-details" class="btn btn-dark">Event Details</a>
@@ -1425,19 +1488,33 @@ body.book-open .book {
   </div>
 </div>
 
+
 <script>
-const memories = [
-  { name:"The Family", message:"Thank you for the laughter, the stories, and the way you always make everyone feel at home.", emoji:"🏡", bg:"linear-gradient(135deg,#12265a,#ff725e)", note:"#ffe76a" },
-  { name:"Karaoke Crew", message:"Tonight we sing for the legend. World Edition would not be complete without you.", emoji:"🎤", bg:"linear-gradient(135deg,#45e0d2,#12265a)", note:"#c7f0ff" },
-  { name:"Everyone", message:"This celebration is one night, but these memories are forever.", emoji:"✈️", bg:"linear-gradient(135deg,#ffd166,#ff725e)", note:"#ffd6d6" },
-  { name:"The Grandkids", message:"For all the hugs, jokes, stories and special moments — we love you endlessly.", emoji:"❤️", bg:"linear-gradient(135deg,#8e5cff,#ff725e)", note:"#ffe76a" },
-  { name:"Friends", message:"From one chapter to the next, you have made the journey unforgettable.", emoji:"🌍", bg:"linear-gradient(135deg,#071024,#45e0d2)", note:"#c7f0ff" },
-  { name:"With Love", message:"A lifetime of memories, stitched together by everyone lucky enough to know you.", emoji:"📸", bg:"linear-gradient(135deg,#5a3717,#d9a441)", note:"#ffd6d6" }
+const REVEAL_BACKEND_URL = "https://script.google.com/macros/s/AKfycbxX9tzOQ4gq5w7KoaQ8zIZt8CXyitdaRVDTH7sChYbq5xvmbDU9xfyxq-dftk7smYJD/exec";
+
+let memories = [
+  { name:"The Family", message:"Thank you for the laughter, the stories, and the way you always make everyone feel at home.", emoji:"🏡", bg:"linear-gradient(135deg,#12265a,#ff725e)", note:"#ffe76a", photos:[] },
+  { name:"Karaoke Crew", message:"Tonight we sing for the legend. World Edition would not be complete without you.", emoji:"🎤", bg:"linear-gradient(135deg,#45e0d2,#12265a)", note:"#c7f0ff", photos:[] },
+  { name:"Everyone", message:"This celebration is one night, but these memories are forever.", emoji:"✈️", bg:"linear-gradient(135deg,#ffd166,#ff725e)", note:"#ffd6d6", photos:[] },
+  { name:"The Grandkids", message:"For all the hugs, jokes, stories and special moments — we love you endlessly.", emoji:"❤️", bg:"linear-gradient(135deg,#8e5cff,#ff725e)", note:"#ffe76a", photos:[] },
+  { name:"Friends", message:"From one chapter to the next, you have made the journey unforgettable.", emoji:"🌍", bg:"linear-gradient(135deg,#071024,#45e0d2)", note:"#c7f0ff", photos:[] },
+  { name:"With Love", message:"A lifetime of memories, stitched together by everyone lucky enough to know you.", emoji:"📸", bg:"linear-gradient(135deg,#5a3717,#d9a441)", note:"#ffd6d6", photos:[] }
 ];
 
 let currentPage = 0;
 let currentMemory = 0;
 let slideshowTimer = null;
+
+const fallbackEmojis = ["🏡","🎤","✈️","❤️","🌍","📸","🎂","🥂","🎶","✨"];
+const fallbackBgs = [
+  "linear-gradient(135deg,#12265a,#ff725e)",
+  "linear-gradient(135deg,#45e0d2,#12265a)",
+  "linear-gradient(135deg,#ffd166,#ff725e)",
+  "linear-gradient(135deg,#8e5cff,#ff725e)",
+  "linear-gradient(135deg,#071024,#45e0d2)",
+  "linear-gradient(135deg,#5a3717,#d9a441)"
+];
+const noteColours = ["#ffe76a","#c7f0ff","#ffd6d6"];
 
 function openBook() {
   document.body.classList.add("book-open");
@@ -1457,22 +1534,97 @@ function showPage(index) {
   const pages = Array.from(document.querySelectorAll(".page"));
   currentPage = (index + pages.length) % pages.length;
   pages.forEach((page, i) => page.classList.toggle("active", i === currentPage));
-  document.getElementById("pageCount").textContent = "Page " + (currentPage + 1) + " / " + pages.length;
+  const pageCount = document.getElementById("pageCount");
+  if(pageCount) pageCount.textContent = "Page " + (currentPage + 1) + " / " + pages.length;
 }
 
 function nextPage() { showPage(currentPage + 1); }
 function prevPage() { showPage(currentPage - 1); }
 
+function imageHtml(url, className) {
+  if (!url) return "";
+  return '<img class="' + className + '" src="' + url + '" alt="Memory photo" loading="lazy" onerror="this.style.display=\'none\'; this.parentElement.textContent=\'📸\';" />';
+}
+
+function firstPhoto(memory) {
+  return memory.photos && memory.photos.length ? memory.photos[0].driveUrl : "";
+}
+
+function renderMemoryPhoto(memory, className) {
+  const url = firstPhoto(memory);
+  if (url) return imageHtml(url, className);
+  return memory.emoji || "📸";
+}
+
+function renderLiveScrapbookPages() {
+  const pageOne = document.querySelector('[data-page="1"] .scrap-page');
+  const pageTwo = document.querySelector('[data-page="2"] .scrap-page');
+  if (!pageOne || !pageTwo) return;
+
+  const positions = [
+    { left:"5%", top:"18%", rot:"-3deg", noteRot:"7deg" },
+    { left:"39%", top:"9%", rot:"2deg", noteRot:"-6deg" },
+    { left:"67%", top:"28%", rot:"-1.5deg", noteRot:"5deg" },
+    { left:"10%", top:"15%", rot:"2.8deg", noteRot:"-4deg" },
+    { left:"43%", top:"22%", rot:"-2deg", noteRot:"7deg" },
+    { left:"70%", top:"10%", rot:"3deg", noteRot:"-7deg" }
+  ];
+
+  const chunks = [memories.slice(0,3), memories.slice(3,6)];
+  const pages = [pageOne, pageTwo];
+
+  pages.forEach((page, pageIndex) => {
+    page.innerHTML = '<div class="doodle" style="right:8%;top:8%">✈</div><div class="doodle" style="left:8%;bottom:8%">♡</div>';
+    chunks[pageIndex].forEach((memory, i) => {
+      const globalIndex = pageIndex * 3 + i;
+      const pos = positions[globalIndex] || positions[i];
+      const photoCount = memory.photos && memory.photos.length > 1 ? '<div class="photo-stack-count">+' + memory.photos.length + '</div>' : '';
+      const hasPhoto = firstPhoto(memory);
+      const div = document.createElement("div");
+      div.className = "memory" + (hasPhoto ? "" : " empty-photo");
+      div.setAttribute("onclick", "showMemory(" + globalIndex + ")");
+      div.setAttribute("style", "left:" + pos.left + ";top:" + pos.top + ";--rot:" + pos.rot + ";--noteRot:" + pos.noteRot + ";--noteBg:" + memory.note);
+      div.innerHTML = `
+        <div class="pin"></div>
+        <div class="polaroid">
+          <div class="photo" style="--bg:${memory.bg}">
+            ${photoCount}
+            ${renderMemoryPhoto(memory, "live-photo-img")}
+          </div>
+          <div class="caption">${memory.name || "Memory " + (globalIndex + 1)}</div>
+        </div>
+        <div class="note">${memory.message}<strong>— ${memory.name || "Guest"}</strong></div>
+      `;
+      page.appendChild(div);
+    });
+
+    if (!chunks[pageIndex].length) {
+      const empty = document.createElement("div");
+      empty.className = "no-live-data";
+      empty.textContent = "No approved memories for this page yet. Approve entries in the Memories tab to fill the scrapbook.";
+      page.appendChild(empty);
+    }
+  });
+}
+
 function showMemory(index) {
   currentMemory = (index + memories.length) % memories.length;
   const m = memories[currentMemory];
 
-  document.getElementById("lightboxImage").style.background = m.bg;
-  document.getElementById("lightboxImage").textContent = m.emoji;
-  document.getElementById("lightboxNote").style.background = m.note;
-  document.getElementById("lightboxNote").innerHTML = m.message + "<br><br><strong>— " + m.name + "</strong>";
-  document.getElementById("lightbox").classList.add("show");
+  const lightboxImage = document.getElementById("lightboxImage");
+  const lightboxNote = document.getElementById("lightboxNote");
 
+  if (lightboxImage) {
+    lightboxImage.style.background = m.bg;
+    lightboxImage.innerHTML = renderMemoryPhoto(m, "lightbox-photo-img");
+  }
+
+  if (lightboxNote) {
+    lightboxNote.style.background = m.note;
+    lightboxNote.innerHTML = m.message + "<br><br><strong>— " + (m.name || "Guest") + "</strong>";
+  }
+
+  document.getElementById("lightbox").classList.add("show");
   renderFeatured();
 }
 
@@ -1485,18 +1637,19 @@ function closeLightbox(e) {
 }
 
 function renderFeatured() {
-  const m = memories[currentMemory];
+  if (!memories.length) return;
+  const m = memories[currentMemory % memories.length];
   const image = document.getElementById("featuredImage");
   const note = document.getElementById("featuredNote");
   const progress = document.getElementById("progressBar");
 
   if(image) {
-    image.textContent = m.emoji;
     image.style.background = m.bg;
+    image.innerHTML = renderMemoryPhoto(m, "featured-photo-img");
   }
   if(note) {
     note.style.background = m.note;
-    note.innerHTML = m.message + "<strong>— " + m.name + "</strong>";
+    note.innerHTML = m.message + "<strong>— " + (m.name || "Guest") + "</strong>";
   }
   if(progress) {
     progress.style.width = (((currentMemory + 1) / memories.length) * 100) + "%";
@@ -1541,7 +1694,42 @@ function fakeUpload() {
   strip.prepend(div);
 }
 
-renderFeatured();
+async function loadLiveMemories() {
+  const status = document.getElementById("liveStatus");
+  try {
+    const response = await fetch(REVEAL_BACKEND_URL + "?type=memories", { method: "GET" });
+    const data = await response.json();
+
+    if (data && data.ok && Array.isArray(data.memories) && data.memories.length) {
+      memories = data.memories.map((m, index) => ({
+        id: m.id,
+        name: m.guestName || "Guest",
+        message: m.message || "A memory for Don.",
+        memoryType: m.memoryType || "",
+        photos: Array.isArray(m.photos) ? m.photos : [],
+        emoji: fallbackEmojis[index % fallbackEmojis.length],
+        bg: fallbackBgs[index % fallbackBgs.length],
+        note: noteColours[index % noteColours.length]
+      }));
+
+      if (status) {
+        status.innerHTML = "Live archive connected <span class='live-badge'>" + memories.length + " approved memories loaded</span>";
+      }
+    } else {
+      if (status) status.textContent = "No approved memories yet — showing sample layout until entries are approved.";
+    }
+  } catch (err) {
+    console.error("Could not load live memories", err);
+    if (status) status.textContent = "Could not load live memories — showing sample layout.";
+  }
+
+  currentMemory = 0;
+  renderLiveScrapbookPages();
+  renderFeatured();
+}
+
+loadLiveMemories();
 </script>
+
 </body>
 </html>
